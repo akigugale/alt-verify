@@ -3,6 +3,7 @@ package degree
 import (
 	"fmt"
 
+	"github.com/akigugale/alt-verify/x/degree/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -12,11 +13,8 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		// TODO: Define your msg cases
-		// 
-		//Example:
-		// case Msg<Action>:
-		// 	return handleMsg<Action>(ctx, k, msg)
+		case MsgCreateDegree:
+			return handleMsgCreateDegree(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName,  msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -25,18 +23,29 @@ func NewHandler(k Keeper) sdk.Handler {
 }
 
 // handde<Action> does x
-func handleMsg<Action>(ctx sdk.Context, k Keeper, msg Msg<Action>) (*sdk.Result, error) {
-	err := k.<Action>(ctx, msg.ValidatorAddr)
-	if err != nil {
-		return nil, err
+func handleMsgCreateDegree(ctx sdk.Context, k Keeper, msg MsgCreateDegree) (*sdk.Result, error) {
+	var degree = types.Degree{
+		Creator: msg.Creator,
+		Student: msg.Student,
+		Subject: msg.Subject,
+		Batch  : msg.Batch,
 	}
 
-	// TODO: Define your msg events
+	_, err := k.GetDegree(ctx, degree.Student)
+	if err == nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Degree for that student already exists")
+	}
+	k.SetDegree(ctx, degree)
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.ValidatorAddr.String()),
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeCreateDegree),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Student.String()),
+			sdk.NewAttribute(types.AttributeCreator, msg.Creator.String()),
+			sdk.NewAttribute(types.AttributeSubject, msg.Subject),
+			sdk.NewAttribute(types.AttributeBatch, string(msg.Batch)),
 		),
 	)
 

@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/akigugale/alt-verify/x/degree/client/cli"
 	"github.com/akigugale/alt-verify/x/degree/client/rest"
+	"github.com/akigugale/alt-verify/x/degree/types"
 )
 
 var (
@@ -28,7 +29,7 @@ var _ module.AppModuleBasic = AppModuleBasic{}
 
 // Name returns the degree module's name.
 func (AppModuleBasic) Name() string {
-	return ModuleName
+	return types.ModuleName
 }
 
 // RegisterCodec registers the degree module's types for the given codec.
@@ -72,17 +73,14 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 // AppModule implements an application module for the degree module.
 type AppModule struct {
 	AppModuleBasic
-
 	keeper        Keeper
-	// TODO: Add keepers that your application depends on
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper, /*TODO: Add Keepers that your application depends on*/) AppModule {
+func NewAppModule(k Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic:      AppModuleBasic{},
 		keeper:              k,
-		// TODO: Add keepers that your application depends on
 	}
 }
 
@@ -138,5 +136,5 @@ func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
 // EndBlock returns the end blocker for the degree module. It returns no validator
 // updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
+	return nil
 }

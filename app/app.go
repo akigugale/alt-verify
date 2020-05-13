@@ -25,20 +25,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+
+	"github.com/akigugale/alt-verify/x/degree"
 )
 
 const appName = "app"
 
 var (
-	// TODO: rename your cli
-
 	// DefaultCLIHome default home directories for the application CLI
-	DefaultCLIHome = os.ExpandEnv("$HOME/.acli")
-
-	// TODO: rename your daemon
+	DefaultCLIHome = os.ExpandEnv("$HOME/.altverifyCLI")
 
 	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
-	DefaultNodeHome = os.ExpandEnv("$HOME/.aud")
+	DefaultNodeHome = os.ExpandEnv("$HOME/.altverifyD")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -52,7 +50,8 @@ var (
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		// TODO: Add your module(s) AppModuleBasic
+
+		degree.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -100,6 +99,7 @@ type NewApp struct {
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
 	// TODO: Add your module(s)
+	degreeKeeper   degree.Keeper
 
 	// Module Manager
 	mm *module.Manager
@@ -121,12 +121,12 @@ func NewInitApp(
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
-	bApp.SetCommitMultiStoreTracer(traceStore)
+
 	bApp.SetAppVersion(version.Version)
 
 	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey)
+		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey, degree.StoreKey)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -207,6 +207,10 @@ func NewInitApp(
 	)
 
 	// TODO: Add your module(s) keepers
+	app.degreeKeeper =  degree.NewKeeper(
+		app.cdc,
+		keys[degree.StoreKey],
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -214,12 +218,11 @@ func NewInitApp(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
+		degree.NewAppModule(app.degreeKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-		// TODO: Add your module(s)
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -238,7 +241,8 @@ func NewInitApp(
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		// TODO: Add your module(s)
+		// Add your module(s)
+		degree.ModuleName,
 		supply.ModuleName,
 		genutil.ModuleName,
 	)
@@ -306,15 +310,6 @@ func (app *NewApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
-// ModuleAccountAddrs returns all the app's module account addresses.
-func (app *NewApp) ModuleAccountAddrs() map[string]bool {
-	modAccAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
-	}
-
-	return modAccAddrs
-}
 
 // Codec returns the application's sealed codec.
 func (app *NewApp) Codec() *codec.Codec {
@@ -326,11 +321,12 @@ func (app *NewApp) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
-// GetMaccPerms returns a mapping of the application's module account permissions.
-func GetMaccPerms() map[string][]string {
-	modAccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		modAccPerms[k] = v
+// ModuleAccountAddrs returns all the app's module account addresses.
+func (app *NewApp) ModuleAccountAddrs() map[string]bool {
+	modAccAddrs := make(map[string]bool)
+	for acc := range maccPerms {
+		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
 	}
-	return modAccPerms
+
+	return modAccAddrs
 }

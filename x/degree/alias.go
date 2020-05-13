@@ -1,18 +1,15 @@
 package degree
 
 import (
-	"github.com/akigugale/alt-verify/x/degree/internal/keeper"
-	"github.com/akigugale/alt-verify/x/degree/internal/types"
+	"github.com/akigugale/alt-verify/x/degree/keeper"
+	"github.com/akigugale/alt-verify/x/degree/types"
 )
 
 const (
-	// TODO: define constants that you would like exposed from the internal package
-
 	ModuleName        = types.ModuleName
 	RouterKey         = types.RouterKey
 	StoreKey          = types.StoreKey
 	DefaultParamspace = types.DefaultParamspace
-	QueryParams       = types.QueryParams
 	QuerierRoute      = types.QuerierRoute
 )
 
@@ -24,11 +21,12 @@ var (
 	NewGenesisState     = types.NewGenesisState
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
-	// TODO: Fill out function aliases
 
 	// variable aliases
 	ModuleCdc     = types.ModuleCdc
-	// TODO: Fill out variable aliases
+
+	// Msg aliases
+	NewMsgCreateDegree= types.NewMsgCreateDegree
 )
 
 type (
@@ -36,5 +34,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	// TODO: Fill out module types
+	// Msg
+	MsgCreateDegree = types.MsgCreateDegree
 )
