@@ -42,7 +42,7 @@ func handleMsgCreateDegree(ctx sdk.Context, k Keeper, msg MsgCreateDegree) (*sdk
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeCreateDegree),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Student.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Student),
 			sdk.NewAttribute(types.AttributeCreator, msg.Creator.String()),
 			sdk.NewAttribute(types.AttributeSubject, msg.Subject),
 			sdk.NewAttribute(types.AttributeBatch, string(msg.Batch)),

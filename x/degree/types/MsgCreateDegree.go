@@ -12,13 +12,13 @@ var _ sdk.Msg = &MsgCreateDegree{}
 // MsgCreateDegree - struct for MsgCreateDegree
 type MsgCreateDegree struct {
 	Creator sdk.AccAddress `json:"address" yaml:"address"` // address of the degree creator
-	Student sdk.AccAddress `json:"student" yaml:"student"` // address of student
+	Student string `json:"student" yaml:"student"` // address of student
 	Subject string `json:"subject" yaml:"subject"` // address of the degree creator
 	Batch uint16 `json:"batch" yaml:"batch"` // year
 }
 
 // creates a new MsgCreateDegree instance
-func NewMsgCreateDegree(creator, student sdk.AccAddress, subject string, batch uint16) MsgCreateDegree {
+func NewMsgCreateDegree(creator sdk.AccAddress, student, subject string, batch uint16) MsgCreateDegree {
 	return MsgCreateDegree{
 		Creator: creator,
 		Student: student,
@@ -49,8 +49,8 @@ func (msg MsgCreateDegree) ValidateBasic() error {
 		errmsg := fmt.Sprintf("Missing University address - %s .", msg.Creator.String())
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, errmsg)
 	}
-	if msg.Student.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "missing Student address")
+	if msg.Student == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing Student address")
 	}
 	if msg.Batch == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "batch cannot be empty")

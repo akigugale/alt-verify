@@ -33,7 +33,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetDegree returns degrees for a particular student (AccAddresss)
-func (k Keeper) GetDegree(ctx sdk.Context, student sdk.AccAddress) (types.Degree, error) {
+func (k Keeper) GetDegree(ctx sdk.Context, student string) (types.Degree, error) {
 	store := ctx.KVStore(k.storeKey)
 	var degree types.Degree
 	byteKey := []byte(student)
@@ -54,19 +54,20 @@ func (k Keeper) SetDegree(ctx sdk.Context, degree types.Degree) {
 }
 
 // Deletes a degree corresponding to student
-func (k Keeper) DeleteDegree(ctx sdk.Context, student sdk.AccAddress) {
+func (k Keeper) DeleteDegree(ctx sdk.Context, student string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Delete([]byte(student))
 }
 
 // Get an iterator over all students in which the keys are the names and the values are the degree
 func (k Keeper) GetDegreeIterator(ctx sdk.Context) sdk.Iterator {
+	fmt.Println("Helloworld")
 	store := ctx.KVStore(k.storeKey)
 	return sdk.KVStorePrefixIterator(store, nil)
 }
 
 // Check if the student is present in the store or not
-func (k Keeper) IsStudentPresent(ctx sdk.Context, student sdk.AccAddress) bool {
+func (k Keeper) IsStudentPresent(ctx sdk.Context, student string) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has([]byte(student))
 }
@@ -74,15 +75,17 @@ func (k Keeper) IsStudentPresent(ctx sdk.Context, student sdk.AccAddress) bool {
 
 func (k Keeper) GetDegreeOfUni(ctx sdk.Context, creator sdk.AccAddress) ([]string, error) {
 	// store := ctx.KVStore(k.storeKey)
+	fmt.Println(creator)
 
 	var degreeList []string
     iterator := k.GetDegreeIterator(ctx)
 	// var degree types.Degree
     for ; iterator.Valid(); iterator.Next() {
-		degree, err := k.GetDegree(ctx, iterator.Key())
+		degree, err := k.GetDegree(ctx, string(iterator.Key()))
 		if err != nil {
 			continue;
 		}
+		fmt.Println(creator)
 		if bytes.Compare(degree.Creator, creator) == 0 {
 			degreeList = append(degreeList, string(degree.Student))
 		}

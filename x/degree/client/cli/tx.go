@@ -49,7 +49,7 @@ func GetCmdCreateDegree(cdc *codec.Codec) *cobra.Command {
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
 			batch, err := strconv.ParseUint(args[2], 16, 16)
-			msg := types.NewMsgCreateDegree(cliCtx.GetFromAddress(), sdk.AccAddress(args[0]), args[1], uint16(batch))
+			msg := types.NewMsgCreateDegree(cliCtx.GetFromAddress(), args[0], args[1], uint16(batch))
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err

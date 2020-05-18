@@ -9,7 +9,7 @@ import (
 
 type Degree struct {
 	Creator sdk.AccAddress `json:"address" yaml:"address"` // address of the degree creator
-	Student sdk.AccAddress `json:"student" yaml:"student"` // address of student
+	Student string `json:"student" yaml:"student"` // address of student
 	Subject string `json:"subject" yaml:"subject"` // address of the degree creator
 	Batch uint16 `json:"batch" yaml:"batch"` // year
 }

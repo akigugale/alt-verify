@@ -50,7 +50,7 @@ func listDegrees(ctx sdk.Context, k Keeper) ([]byte, error) {
 
 func getDegree(ctx sdk.Context, path []string, k Keeper) (res []byte, sdkError error) {
 	student := path[0]
-	degree, err := k.GetDegree(ctx, sdk.AccAddress(student))
+	degree, err := k.GetDegree(ctx, student)
 	if err != nil {
 		return nil, err
 	}
